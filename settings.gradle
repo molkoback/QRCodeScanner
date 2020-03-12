@@ -1,0 +1,4 @@
+include ':app'
+rootProject.name='QRCodeScanner'
+
+include ':openCVLibrary343'

@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">QR Code Scanner</string>
+    <string name="history_clear">Clear history</string>
+</resources>
