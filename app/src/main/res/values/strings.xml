@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">QR Code Scanner</string>
     <string name="history_clear">Clear history</string>
+    <string name="copy">Copy</string>
+    <string name="open">Open</string>
 </resources>

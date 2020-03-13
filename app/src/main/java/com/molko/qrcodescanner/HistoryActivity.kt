@@ -16,28 +16,24 @@ class HistoryActivity : AppCompatActivity() {
         setContentView(R.layout.activity_history)
         
         // Clear history dialog
-        val listener = DialogInterface.OnClickListener { _, which ->
-            when (which) {
-                DialogInterface.BUTTON_POSITIVE -> {
-                    historyClear()
-                }
-                DialogInterface.BUTTON_NEGATIVE -> {}
-            }
-        }
         val builder = AlertDialog.Builder(this)
-        builder
-            .setMessage(getString(R.string.history_clear))
-            .setPositiveButton(getString(android.R.string.ok), listener)
-            .setNegativeButton(getString(android.R.string.cancel), listener)
+        builder.setMessage(getString(R.string.history_clear))
+            .setPositiveButton(getString(android.R.string.ok)) { _, _ -> historyClear() }
+            .setNegativeButton(getString(android.R.string.cancel)) { _, _ -> }
         dialogClear = builder.create()
         
-        // Dummy list
+        // History list
         val items = listOf(
             "QR data",
             "More QR data",
             "One more QR data"
         )
-        listHistory.adapter = HistoryAdapter(applicationContext, items)
+        val adapter = HistoryAdapter(applicationContext, items)
+        listHistory.adapter = adapter
+        listHistory.setOnItemClickListener { _, _, i, _ ->
+            val text = adapter.getItem(i) as String
+            showQRDialog(this, text)
+        }
     }
     
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

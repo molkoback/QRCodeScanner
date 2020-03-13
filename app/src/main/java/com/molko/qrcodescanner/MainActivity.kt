@@ -13,6 +13,8 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
         System.loadLibrary("opencv_java3")
         
+        showQRDialog(this, "QR Data")
+        
         fabHistory.setOnClickListener {
             startActivity(Intent(this, HistoryActivity::class.java))
         }
