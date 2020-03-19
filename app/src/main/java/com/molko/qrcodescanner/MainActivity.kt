@@ -11,15 +11,13 @@ import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2
-import org.opencv.core.Core
-import org.opencv.core.CvType
 import org.opencv.core.Mat
-import org.opencv.imgproc.Imgproc
-
 
 class MainActivity : AppCompatActivity(), CvCameraViewListener2 {
-    lateinit var PERMISSIONS: Array<String>
-    private val PERMISSIONS_REQUEST_CODE = 10
+    lateinit var mPermissions: Array<String>
+    private val mPermissionsReturnCode = 10
+    
+    private var mDetect: Boolean = false
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,13 +25,13 @@ class MainActivity : AppCompatActivity(), CvCameraViewListener2 {
         supportActionBar?.hide()
         
         System.loadLibrary("opencv_java3")
-        
-        PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+
+        mPermissions = arrayOf(Manifest.permission.CAMERA)
         checkPermissions()
     }
     
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == PERMISSIONS_REQUEST_CODE) {
+        if (requestCode == mPermissionsReturnCode) {
             var permissionsGranted = grantResults.isNotEmpty()
             for (res in grantResults) {
                 if (res != PackageManager.PERMISSION_GRANTED) {
@@ -41,7 +39,7 @@ class MainActivity : AppCompatActivity(), CvCameraViewListener2 {
                 }
             }
             if (permissionsGranted) {
-                start()
+                init()
             }
             else {
                 Toast.makeText(this, getString(R.string.permissions), Toast.LENGTH_LONG).show()
@@ -51,26 +49,26 @@ class MainActivity : AppCompatActivity(), CvCameraViewListener2 {
     
     private fun checkPermissions() {
         var permissionsGranted = true
-        for (permission in PERMISSIONS) {
+        for (permission in mPermissions) {
             if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
                 permissionsGranted = false
                 break
             }
         }
         if (permissionsGranted) {
-            start()
+            init()
         }
         else {
-            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSIONS_REQUEST_CODE)
+            ActivityCompat.requestPermissions(this, mPermissions, mPermissionsReturnCode)
         }
     }
-
-    private fun start() {
+    
+    private fun init() {
         viewCamera.setCvCameraViewListener(this)
-        viewCamera.enableView()
         fabHistory.setOnClickListener {
             startActivity(Intent(this, HistoryActivity::class.java))
         }
+        viewCamera.enableView()
     }
     
     override fun onCameraViewStarted(width: Int, height: Int) { }
