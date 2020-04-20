@@ -1,6 +1,7 @@
 package com.molko.qrcodescanner
 
 import android.content.Context
+import android.content.DialogInterface.OnDismissListener
 import android.view.LayoutInflater
 import androidx.appcompat.app.AlertDialog
 import kotlinx.android.synthetic.main.qrdialog.view.*
@@ -13,7 +14,7 @@ private fun open(text: String) {
     // TODO
 }
 
-fun showQRDialog(context: Context, text: String) {
+fun showQRDialog(context: Context, text: String, listener: OnDismissListener? = null) {
     val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     val view = inflater.inflate(R.layout.qrdialog, null)
     view.textQR.text = text
@@ -25,6 +26,9 @@ fun showQRDialog(context: Context, text: String) {
     }
     
     val builder = AlertDialog.Builder(context)
+    if (listener != null) {
+        builder.setOnDismissListener(listener)
+    }
     builder.setView(view)
     builder.create().show()
 }
