@@ -1,10 +1,11 @@
 package com.molko.qrcodescanner
 
-import android.R.attr.label
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.DialogInterface.OnDismissListener
+import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -18,7 +19,14 @@ private fun copy(context: Context, text: String) {
 }
 
 private fun open(context: Context, text: String) {
-    // TODO
+    val uri = Uri.parse(text)
+    val intent = Intent(Intent.ACTION_VIEW, uri)
+    if (intent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(intent)
+    }
+    else {
+        Toast.makeText(context, context.getString(R.string.open_error), Toast.LENGTH_SHORT).show()
+    }
 }
 
 fun showQRDialog(context: Context, text: String, listener: OnDismissListener? = null) {
