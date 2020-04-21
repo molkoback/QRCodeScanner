@@ -7,11 +7,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.room.Room
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.longToast
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2
 import org.opencv.core.CvType
@@ -50,7 +52,7 @@ class MainActivity : AppCompatActivity(), CvCameraViewListener2 {
                 init()
             }
             else {
-                Toast.makeText(this, getString(R.string.permissions), Toast.LENGTH_LONG).show()
+                longToast(getString(R.string.permissions))
             }
         }
     }
@@ -58,7 +60,7 @@ class MainActivity : AppCompatActivity(), CvCameraViewListener2 {
     private fun checkPermissions() {
         var permissionsGranted = true
         for (permission in mPermissions) {
-            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this@MainActivity, permission) != PackageManager.PERMISSION_GRANTED) {
                 permissionsGranted = false
                 break
             }
@@ -67,14 +69,14 @@ class MainActivity : AppCompatActivity(), CvCameraViewListener2 {
             init()
         }
         else {
-            ActivityCompat.requestPermissions(this, mPermissions, mPermissionsReturnCode)
+            ActivityCompat.requestPermissions(this@MainActivity, mPermissions, mPermissionsReturnCode)
         }
     }
     
     private fun init() {
-        viewCamera.setCvCameraViewListener(this)
+        viewCamera.setCvCameraViewListener(this@MainActivity)
         fabHistory.setOnClickListener {
-            startActivity(Intent(this, HistoryActivity::class.java))
+            startActivity(Intent(this@MainActivity, HistoryActivity::class.java))
         }
         mDetector = QRCodeDetector()
         mDetect = true
@@ -100,7 +102,12 @@ class MainActivity : AppCompatActivity(), CvCameraViewListener2 {
             if (text.isNotEmpty()) {
                 mDetect = false
                 runOnUiThread {
-                    showQRDialog(this, text, QRDialogDismissListener())
+                    showQRDialog(this@MainActivity, text, QRDialogDismissListener())
+                    doAsync {
+                        val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, TABLE_NAME).build()
+                        db.historyDao().insert(text)
+                        db.close()
+                    }
                 }
             }
         }

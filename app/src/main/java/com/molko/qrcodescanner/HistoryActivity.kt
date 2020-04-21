@@ -1,12 +1,13 @@
 package com.molko.qrcodescanner
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.room.Room
 import kotlinx.android.synthetic.main.activity_history.*
+import org.jetbrains.anko.*
 
 class HistoryActivity : AppCompatActivity() {
     lateinit var dialogClear: AlertDialog
@@ -23,17 +24,7 @@ class HistoryActivity : AppCompatActivity() {
         dialogClear = builder.create()
         
         // History list
-        val items = listOf(
-            "QR data",
-            "More QR data",
-            "One more QR data"
-        )
-        val adapter = HistoryAdapter(applicationContext, items)
-        listHistory.adapter = adapter
-        listHistory.setOnItemClickListener { _, _, i, _ ->
-            val text = adapter.getItem(i) as String
-            showQRDialog(this, text)
-        }
+        refreshList()
     }
     
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -50,8 +41,33 @@ class HistoryActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+
+    private fun refreshList() {
+        doAsync {
+            val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, TABLE_NAME).build()
+            val entries = db.historyDao().getEntries()
+            db.close()
+            
+            uiThread {
+                val adapter = HistoryAdapter(this@HistoryActivity, entries)
+                listHistory.adapter = adapter
+                listHistory.setOnItemClickListener { _, _, i, _ ->
+                    val entry = adapter.getItem(i) as QREntry
+                    showQRDialog(this@HistoryActivity, entry.text)
+                }
+            }
+        }
+    }
     
-    fun historyClear() {
-        // TODO
+    private fun historyClear() {
+        doAsync {
+            val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, TABLE_NAME).build()
+            db.historyDao().clear()
+            db.close()
+            refreshList()
+            uiThread {
+                toast(getString(R.string.history_clear_done))
+            }
+        }
     }
 }
