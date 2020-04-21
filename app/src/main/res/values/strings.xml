@@ -4,5 +4,6 @@
     <string name="history_clear">Clear history</string>
     <string name="history_clear_done">History Cleared</string>
     <string name="copy">Copy</string>
+    <string name="copy_done">Copied</string>
     <string name="open">Open</string>
 </resources>
